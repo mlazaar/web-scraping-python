@@ -1,0 +1,11 @@
+{
+    "path_download": "/Users/mohzaar/Desktop/Phone.csv",
+    "lesmobiles" : {
+        "basic_url" : "https://www.lesmobiles.com",
+        "my_url" : "https://www.lesmobiles.com/telephones/"
+    },
+    "kimovil" : {
+        "basic_url" :"https://www.kimovil.com/fr/",
+        "my_url" : "https://www.kimovil.com/fr/toutes-les-marques-de-mobiles"
+    }
+}
