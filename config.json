@@ -1,5 +1,6 @@
 {
     "path_download": "/Users/mohzaar/Desktop/Phone.csv",
+    
     "lesmobiles" : {
         "basic_url" : "https://www.lesmobiles.com",
         "my_url" : "https://www.lesmobiles.com/telephones/"

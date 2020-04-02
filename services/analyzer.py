@@ -16,5 +16,5 @@ class Analyzer:
 
     def build(self):
         # print(self.data.groupby('Processeur').mean())
-        self.data.to_csv(r'/Users/mohzaar/work/scrapping-web-python/Phone.csv', index = None, header=True)
+        self.data.to_csv(r'Phone.csv', index = None, header=True)
 

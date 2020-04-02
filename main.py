@@ -1,13 +1,13 @@
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+
+import json
+
 from data.scraper import Scraper
 from data.extractor import Extractor
 from data.extractor2 import Extractor2
 from services.analyzer import Analyzer
-import seaborn as sns
-import matplotlib.pyplot as plt
-import plotly.express as px
-import pandas as pd
-
-import json
 
 # Récupération données JSON
 with open('./config.json') as f:
@@ -26,7 +26,7 @@ dataframe = pd.DataFrame()
 def main():
     scrap_lm = Scraper()
     scrap_km = Scraper()
-   
+
     extractor_lm = Extractor(lm_basic_url)
     extractor_km = Extractor2(km_basic_url)
 

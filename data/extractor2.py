@@ -1,8 +1,9 @@
+import pandas as pd
+import json
 
 from data.scraper import Scraper
 from utils.utils import Utils
-import pandas as pd
-import json
+from decorator import Decorator2
 
 # Constantes
 # brands = ['Apple','Google','Asus','BlackBerry']
@@ -11,6 +12,7 @@ brands = ['Apple','Google']
 columns = ['Nom','Marque','Taille Ecran(en pouces)','Dimensions','Poids(en g)','OS','Processeur','Prix(prix en euros)', 'Mémoire', 'RAM', 'Appareil photo']
 scraper = Scraper()
 util = Utils()
+decorator = Decorator2()
 
 class Extractor2:
 
@@ -19,31 +21,64 @@ class Extractor2:
         self.basic_url = basic_url
         super().__init__()
 
-
+    @decorator.cleanDataRam
     def getRAM(self, html):
-        return html.find('section', class_ ='kc-container white container-sheet-hardware').findAll('dl', class_ ='k-dl')[2].findAll('dd')[0].text.split(' ')[0]
+        ram = html.find('section', class_ ='kc-container white container-sheet-hardware').findAll('dl', class_ ='k-dl')[2].findAll('dd')[0].text
+        try:
+            return ram
+        except:
+            return None
 
+    @decorator.cleanDataStorage
     def getStorage(self,html):
-       return html.find('section', class_ ='kc-container white container-sheet-hardware').findAll('dl', class_ ='k-dl')[4].findAll('dd')[0].text.split(' ')[0]
+        storage = html.find('section', class_ ='kc-container white container-sheet-hardware').findAll('dl', class_ ='k-dl')[4].findAll('dd')[0].text
+        try:
+            return storage
+        except:
+            return None
 
+    @decorator.cleanDataPixelPhotos
     def getPixelPhotos(self,html):
-       return html.find('section', class_ ='kc-container dark black-isometric container-sheet-camera').findAll('dl', class_ ='k-dl')[0].findAll('dd')[1].text.split(' ')[0]
+        px = html.find('section', class_ ='kc-container dark black-isometric container-sheet-camera').findAll('dl', class_ ='k-dl')[0].findAll('dd')[1].text
+        try:
+            return px
+        except:
+            return None
 
     def getSmartphoneName(self,html):
         return html.find('div', class_ ='title-group').find("h1").getText()[len('Prix et caractéristiques du '):]
 
+    @decorator.cleanDataBrand
     def getSmartphoneBrand(self,html):
-        return html.find('section', class_ ='kc-container white container-sheet-intro').findAll('dl', class_ ='k-dl')[0].findAll('dd')[0].text.strip()
+        brand = html.find('section', class_ ='kc-container white container-sheet-intro').findAll('dl', class_ ='k-dl')[0].findAll('dd')[0].text
+        try:
+            return brand
+        except:
+            return None
 
+    @decorator.cleanDataScreenSize
     def getSmartphoneScreenSize(self,html):
-        return html.find('section', class_ ='kc-container white container-sheet-design').findAll('dl', class_ ='k-dl')[1].findAll('dd')[0].text.replace('"','')
+        screen = html.find('section', class_ ='kc-container white container-sheet-design').findAll('dl', class_ ='k-dl')[1].findAll('dd')[0].text
+        try: 
+            return screen
+        except:
+            return None
 
+    @decorator.cleanDataDimensions
     def getSmartphoneDimensions(self,html):
-        return html.find('section', class_ ='kc-container white container-sheet-design').findAll('dl', class_ ='k-dl')[0].findAll('dd')[0].text.replace('mm','').replace('•','x').replace('.',',')
+        dimensions = html.find('section', class_ ='kc-container white container-sheet-design').findAll('dl', class_ ='k-dl')[0].findAll('dd')[0].text
+        try:
+            return dimensions
+        except:
+            return None
 
+    @decorator.cleanDataWeight
     def getSmartphoneWeight(self,html):
         weight = html.find('section', class_ ='kc-container white container-sheet-design').findAll('dl', class_ ='k-dl')[0].findAll('dd')[1].text
-        return weight.replace('g', '')
+        try:   
+            return weight
+        except:
+            return None
 
     def getSmartphoneaOs(self,html):
         return html.find('section', class_ ='kc-container white container-sheet-software').find('dl', class_ ='k-dl').find('div').text
@@ -54,7 +89,10 @@ class Extractor2:
     def getSmartphonePrices(self,html):
         data = html.select("[type='application/ld+json']")[0]
         oJson = json.loads(data.text)
-        return oJson['offers']['lowPrice']
+        try:
+            return oJson['offers']['lowPrice']
+        except:
+            return None
 
     def getAllBrandsUrls(self,html):
         brand_urls = []
@@ -73,48 +111,18 @@ class Extractor2:
         phone_infos = {}
         phone_infos['Nom'] = self.getSmartphoneName(html)
         phone_infos['Marque'] = self.getSmartphoneBrand(html)
-        
-        try :
-            phone_infos['Taille Ecran(en pouces)'] = self.getSmartphoneScreenSize(html)
-        except :
-            phone_infos['Taille Ecran(en pouces)'] = None
+        phone_infos['Taille Ecran(en pouces)'] = self.getSmartphoneScreenSize(html)
+        phone_infos['Dimensions'] = self.getSmartphoneDimensions(html)
+        phone_infos['Poids(en g)'] = self.getSmartphoneWeight(html)
+        phone_infos['OS'] = self.getSmartphoneaOs(html)
+        phone_infos['Processeur'] = self.getSmartphoneProcessor(html)
+        phone_infos['Prix(prix en euros)'] = self.getSmartphonePrices(html)
+        phone_infos['RAM'] = self.getRAM(html)
+        phone_infos['Mémoire'] = self.getStorage(html)
+        phone_infos['Appareil photo'] = self.getPixelPhotos(html)
 
-        try :
-            phone_infos['Dimensions'] = self.getSmartphoneDimensions(html)
-        except :
-            phone_infos['Dimensions'] = None
-        
-        try :
-            phone_infos['Poids(en g)'] = self.getSmartphoneWeight(html)
-        except :
-            phone_infos['Poids(en g)'] = None
+        print(phone_infos)
 
-        try :     
-            phone_infos['OS'] = self.getSmartphoneaOs(html)
-        except :
-            phone_infos['OS'] = None
-
-        try :
-            phone_infos['Processeur'] = self.getSmartphoneProcessor(html)
-        except :
-            phone_infos['Processeur'] = None
-
-        try : 
-            phone_infos['Prix(prix en euros)'] = self.getSmartphonePrices(html)
-        except :
-            phone_infos['Prix(prix en euros)'] = None
-        try : 
-            phone_infos['RAM'] = self.getRAM(html)
-        except :
-            phone_infos['RAM'] = None
-        try : 
-            phone_infos['Mémoire'] = self.getStorage(html)
-        except:
-            phone_infos['Mémoire'] = None  
-        try : 
-            phone_infos['Appareil photo'] = self.getPixelPhotos(html)
-        except :
-            phone_infos['Appareil photo'] = None
         return phone_infos
 
     def build(self, html, dataF):
@@ -124,7 +132,6 @@ class Extractor2:
         for element in brandLinks:
             new_html_soup = scraper.scrapUrl(element)
             phones_link = self.getUrlsSmarphonesModelsOfABrand(new_html_soup)
-            # phones_infos_link = self.getUrlsSmartphoneTechnicalReview(phones_link)
 
             for var in phones_link:
                 data.append(self.getDataFromTechnicalReviewPage(scraper.scrapUrl(var)))
